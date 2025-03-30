@@ -17,12 +17,57 @@
 - [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
 
 <!-- Plugin description -->
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
+**TUILaunch** is helps to launching TUI applications, such as `lazygit`, within IntelliJ's built-in terminal.
+Every saved application launch command is assigned an auto generated Action,
+which seamlessly integrate with IdeaVim or work  with the built-in keymap.
 
-This specific section is a source for the [plugin.xml](/src/main/resources/META-INF/plugin.xml) file which will be extracted by the [Gradle](/build.gradle.kts) during the build process.
 
-To keep everything working, do not remove `<!-- ... -->` sections. 
+The plugin is  inspired by Neovim's  [ToggleTerm plugin](https://github.com/akinsho/toggleterm.nvim?tab=readme-ov-file#custom-terminals) custom terminal feature.
+
 <!-- Plugin description end -->
+
+## Features
+You can open the settings and add/edit commands :
+<kbd>Settings/Preferences</kbd> > <kbd>Tools</kbd> > <kbd>TUILauncher</kbd>
+
+### Create Action for TUI app 
+Add an installed application to the table, and after saving it, an action with the format `TUILauncher.{name}` is added to the IDE Actions.
+
+![AddApp](assets/tui_app_table.png)
+
+You can use the **ActionId** in IdeaVim:
+```
+nmap <Space>gg <Action>(TUILauncher.lazygit)
+```
+
+Or simply use the built-in keymap feature.
+![AddApp](assets/keymap.png)
+
+> After you close the TUI app, the terminal session automatically ends because the executed command always follows this format: `${command};exit.`
+> 
+###  ToolWindowType
+Configure which tool window mode is used to open your TUI app.
+
+![AddApp](assets/tool_window_type.png)
+
+#### Override Modes
+When opening a terminal tool window, the current tool window type is temporarily overridden, and the terminal opens in the selected mode. 
+
+Available modes:
+- `Dock to IDE window edge` – Attaches the terminal to the edge of the IDE window.
+- `Float as a separate window` – Opens the terminal in a floating window.
+- `Slide over the editor area` – Displays the terminal as an overlay on the editor.
+- `Show in a detached window` – Opens the terminal in a fully separate window.
+
+> After the focus is lost, the tool window type automatically reverts to its default state.
+
+#### Does not override the mode:
+-  `Use current window mode` – Keeps the existing tool window mode unchanged.
+
+#### Limitation
+- Terminal sessions handled by this plugin are automatically closed after focus is lost.
+- Only one TUI application can be launched at a time. If you open a new app while another TUI application is running, the previous one is automatically closed.
+
 
 ## Installation
 

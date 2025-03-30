@@ -5,14 +5,20 @@
     <vendor>atm1020</vendor>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.plugins.terminal</depends>
+    <depends>com.jetbrains.sh</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
-
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.atm1020.tuilaunch.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <applicationService serviceImplementation="com.github.atm1020.tuilaunch.services.TuiLauncherSettings"/>
+        <applicationConfigurable parentId="tools" instance="com.github.atm1020.tuilaunch.ui.TuiLauncherConfiguration"
+                                 id="com.example.tuilauncher.TuiLauncherConfigurable"
+                                 displayName="TUI Launcher"/>
+        <postStartupActivity implementation="com.github.atm1020.tuilaunch.LoadDynamicActions"/>
     </extensions>
 
-    <applicationListeners>
-        <listener class="com.github.atm1020.tuilaunch.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
-    </applicationListeners>
+<!--    <actions>-->
+<!--        <action id="TuiLauncherSelector"-->
+<!--                class="com.github.atm1020.tuilaunch.action.TuiLauncherActionGroup" text="Tui App Selector"/>-->
+<!--    </actions>-->
 </idea-plugin>
