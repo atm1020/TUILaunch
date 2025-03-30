@@ -1,8 +1,9 @@
 # TUILaunch
 
 ![Build](https://github.com/atm1020/TUILaunch/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
+[![Version](https://img.shields.io/jetbrains/plugin/v/com.github.atm1020.tuilaunch.svg)](https://plugins.jetbrains.com/plugin/com.github.atm1020.tuilaunch)
+
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/com.github.atm1020.tuilaunch.svg)](https://plugins.jetbrains.com/plugin/com.github.atm1020.tuilaunch)
 
 ## Template ToDo list
 - [x] Create a new [IntelliJ Platform Plugin Template][template] project.
@@ -33,7 +34,9 @@ You can open the settings and add/edit commands :
 ### Create Action for TUI app 
 Add an installed application to the table, and after saving it, an action with the format `TUILauncher.{name}` is added to the IDE Actions.
 
-![AddApp](assets/tui_app_table.png)
+<video src="assets/demo.mp4" controls></video>
+
+![AddApp](assets/demo.mp4)
 
 You can use the **ActionId** in IdeaVim:
 ```
