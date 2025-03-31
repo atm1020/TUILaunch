@@ -60,14 +60,19 @@ class TuiLauncherSettings : PersistentStateComponent<TuiLauncherSettings.State> 
         tableModel.let { model ->
             val actionManger = ActionManager.getInstance()
             for (i in 0..<model.rowCount) {
+                val name = model.getValueAt(i, 0)
                 val command = model.getValueAt(i, 1)
                 val actionId = model.getValueAt(i, 3).toString()
-                val action = DynamicUserAction(command.toString())
+                val action = DynamicUserAction(command.toString(), name.toString())
                 if (actionManger.getAction(actionId) != null) {
                     actionManger.unregisterAction(actionId)
                 }
                 actionManger.registerAction(actionId, action)
             }
         }
+    }
+
+    fun removeAction(actionId: String) {
+       ActionManager.getInstance().unregisterAction(actionId)
     }
 }

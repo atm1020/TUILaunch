@@ -34,10 +34,6 @@ You can open the settings and add/edit commands :
 ### Create Action for TUI app 
 Add an installed application to the table, and after saving it, an action with the format `TUILauncher.{name}` is added to the IDE Actions.
 
-<video src="assets/demo.mp4" controls></video>
-
-![AddApp](assets/demo.mp4)
-
 You can use the **ActionId** in IdeaVim:
 ```
 nmap <Space>gg <Action>(TUILauncher.lazygit)
