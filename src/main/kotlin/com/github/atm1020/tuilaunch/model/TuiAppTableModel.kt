@@ -16,7 +16,7 @@ class TuiAppTableModel(private val apps: MutableList<TuiAppConfig>) : AbstractTa
             0 -> apps[rowIndex].name
             1 -> apps[rowIndex].command
             2 -> apps[rowIndex].options
-            3 -> "TUILauncher.${apps[rowIndex].command}"
+            3 -> "TUILauncher.${apps[rowIndex].name}"
             else -> ""
         }
     }

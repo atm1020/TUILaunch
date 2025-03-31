@@ -3,6 +3,7 @@ package com.github.atm1020.tuilaunch.ui
 import com.github.atm1020.tuilaunch.model.TuiAppConfig
 import com.github.atm1020.tuilaunch.services.TuiLauncherSettings
 import com.github.atm1020.tuilaunchmodel.TuiAppTableModel
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.wm.ToolWindowType
@@ -50,7 +51,9 @@ class TuiLauncherConfiguration : Configurable {
                 addActionListener {
                     val selectedRow = table.selectedRow
                     if (selectedRow >= 0) {
+                        val actionId = tableModel?.getValueAt(selectedRow, 3).toString()
                         tableModel?.removeRow(selectedRow)
+                        ActionManager.getInstance().unregisterAction(actionId)
                     }
                 }
             })

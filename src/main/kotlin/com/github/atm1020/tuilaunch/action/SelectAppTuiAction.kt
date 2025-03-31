@@ -13,7 +13,7 @@ class TuiLauncherActionGroup : ActionGroup() {
         return settings.state.tuiApps.map { appConfig ->
             object : AnAction(appConfig.name, appConfig.description, null) {
                 override fun actionPerformed(e: AnActionEvent) {
-                    e.project?.service<TuiAppLaunchService>()?.launchApp(appConfig.command)
+                    e.project?.service<TuiAppLaunchService>()?.launchApp(appConfig.command, appConfig.name)
                 }
             }
         }.toTypedArray()
