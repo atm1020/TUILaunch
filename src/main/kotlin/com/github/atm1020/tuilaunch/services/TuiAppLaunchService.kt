@@ -10,6 +10,6 @@ import com.intellij.sh.run.ShRunner
 class TuiAppLaunchService(private val project: Project) {
     fun launchApp(command: String, title: String) {
         ApplicationManager.getApplication().getService(ShRunner::class.java)
-            .run(project, "${command};exit", project.basePath!!.plus("TUI"), title, true)
+            .run(project, "${command};exit", project.basePath!!, title, true)
     }
 }
