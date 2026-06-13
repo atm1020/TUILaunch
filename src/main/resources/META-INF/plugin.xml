@@ -6,7 +6,6 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>org.jetbrains.plugins.terminal</depends>
-    <depends>com.jetbrains.sh</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
     <extensions defaultExtensionNs="com.intellij">
@@ -15,10 +14,66 @@
                                  id="com.example.tuilauncher.TuiLauncherConfigurable"
                                  displayName="TUI Launcher"/>
         <postStartupActivity implementation="com.github.atm1020.tuilaunch.LoadDynamicActions"/>
+        <toolWindow id="TUILaunch"
+                    anchor="bottom"
+                    canCloseContents="false"
+                    factoryClass="com.github.atm1020.tuilaunch.toolwindow.TuiLaunchToolWindowFactory"/>
     </extensions>
 
-<!--    <actions>-->
-<!--        <action id="TuiLauncherSelector"-->
-<!--                class="com.github.atm1020.tuilaunch.action.TuiLauncherActionGroup" text="Tui App Selector"/>-->
-<!--    </actions>-->
+    <actions>
+        <action id="TUILauncher.FocusTui"
+                class="com.github.atm1020.tuilaunch.action.FocusTuiAction"
+                text="TUILaunch Focus"
+                description="Move keyboard focus to the active TUI session">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="TUILauncher.FocusEditor"
+                class="com.github.atm1020.tuilaunch.action.FocusEditorAction"
+                text="TUILaunch Focus Editor"
+                description="Move keyboard focus back to the editor">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="TUILauncher.ToggleFocus"
+                class="com.github.atm1020.tuilaunch.action.ToggleFocusAction"
+                text="TUILaunch Toggle Focus"
+                description="Toggle focus between the TUI session and the editor">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="TUILauncher.ToggleToolWindow"
+                class="com.github.atm1020.tuilaunch.action.ToggleToolWindowAction"
+                text="TUILaunch Toggle Tool Window"
+                description="Show or hide the TUILaunch tool window">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="TUILauncher.CloseActiveTui"
+                class="com.github.atm1020.tuilaunch.action.CloseActiveTuiAction"
+                text="TUILaunch Close Active TUI"
+                description="Close the currently selected TUI session tab">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="TUILauncher.NextTuiTab"
+                class="com.github.atm1020.tuilaunch.action.NextTuiTabAction"
+                text="TUILaunch Next TUI Tab"
+                description="Move focus to the next open TUI session tab">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="TUILauncher.NextTuiTabWithoutFocus"
+                class="com.github.atm1020.tuilaunch.action.NextTuiTabWithoutFocusAction"
+                text="TUILaunch Next TUI Tab Without Focus"
+                description="Move to the next open TUI session tab without requesting terminal focus">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="TUILauncher.PreviousTuiTab"
+                class="com.github.atm1020.tuilaunch.action.PreviousTuiTabAction"
+                text="TUILaunch Previous TUI Tab"
+                description="Move focus to the previous open TUI session tab">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="TUILauncher.PreviousTuiTabWithoutFocus"
+                class="com.github.atm1020.tuilaunch.action.PreviousTuiTabWithoutFocusAction"
+                text="TUILaunch Previous TUI Tab Without Focus"
+                description="Move to the previous open TUI session tab without requesting terminal focus">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
 </idea-plugin>

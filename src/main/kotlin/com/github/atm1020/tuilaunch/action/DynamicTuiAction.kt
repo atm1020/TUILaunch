@@ -5,9 +5,13 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
 
-class DynamicUserAction(private val command: String, private val title: String) :
-    AnAction(command, "TUILaunch app: ${command}", null) {
+class DynamicUserAction(
+    private val actionId: String,
+    private val command: String,
+    private val title: String,
+) : AnAction(title, "TUILaunch app: $command", null) {
     override fun actionPerformed(e: AnActionEvent) {
-        e.project?.service<TuiAppLaunchService>()?.launchApp(command, title)
+        e.project?.service<TuiAppLaunchService>()?.toggle(actionId, command, title)
     }
+
 }
