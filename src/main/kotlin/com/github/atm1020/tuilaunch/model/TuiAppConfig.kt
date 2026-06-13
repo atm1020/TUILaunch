@@ -5,6 +5,7 @@ data class TuiAppConfig(
     var command: String = "",
     var options: String = "",
     var description: String = "",
+    var windowWidth: Int? = null,
+    var windowHeight: Int? = null,
 )
-
 
