@@ -7,7 +7,7 @@ pluginManagement {
         id("org.jetbrains.kotlin.jvm") version "2.1.20"
         id("org.jetbrains.changelog") version "2.5.0"
         id("org.jetbrains.qodana") version "2025.1.1"
-        id("org.jetbrains.kotlinx.kover") version "0.9.1"
+        id("org.jetbrains.kotlinx.kover") version "0.9.8"
     }
 }
 
