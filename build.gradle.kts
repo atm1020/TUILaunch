@@ -2,6 +2,7 @@ import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 
 plugins {
     id("java")
@@ -18,6 +19,9 @@ version = providers.gradleProperty("pluginVersion").get()
 // Set the JVM language level used to build the project.
 kotlin {
     jvmToolchain(21)
+    compilerOptions {
+        jvmDefault = JvmDefaultMode.NO_COMPATIBILITY
+    }
 }
 
 dependencies {
