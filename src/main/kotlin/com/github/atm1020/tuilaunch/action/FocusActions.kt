@@ -33,6 +33,13 @@ class ToggleToolWindowAction : AnAction() {
     }
 }
 
+/** Toggles TUILaunch tool window visibility and focuses the active TUI session when showing it. */
+class ToggleToolWindowAndFocusAction : AnAction() {
+    override fun actionPerformed(e: AnActionEvent) {
+        e.project?.service<TuiAppLaunchService>()?.toggleToolWindowAndFocus()
+    }
+}
+
 /** Closes the currently selected TUI session tab. */
 class CloseActiveTuiAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {

@@ -83,11 +83,16 @@ class JediTermSessionFactory(
      */
     private fun installPrefixFocusSwitch(widget: TerminalWidget, parent: Disposable) {
         val state = TuiLauncherSettings.getInstance().state
+        if (!state.tmuxKeybindingsEnabled) return
+        val escapeKeyCode = state.escapeKeyCode ?: return
+        val actions = prefixCommandActions()
+        if (actions.isEmpty()) return
+
         val dispatcher = TerminalPrefixKeyDispatcher(
             terminalComponent = widget.component,
             escapeModifierMask = modifierMaskOf(state.escapeModifier),
-            escapeKeyCode = state.escapeKeyCode,
-            prefixCommandActions = prefixCommandActions(),
+            escapeKeyCode = escapeKeyCode,
+            prefixCommandActions = actions,
         )
         val focusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager()
         focusManager.addKeyEventDispatcher(dispatcher)

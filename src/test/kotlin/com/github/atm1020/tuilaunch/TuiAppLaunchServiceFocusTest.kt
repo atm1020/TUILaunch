@@ -539,6 +539,22 @@ class TuiAppLaunchServiceFocusTest : BasePlatformTestCase() {
         assertEquals(1, firstSession.focusCount)
     }
 
+    fun testPrefixCommandActionsLaunchConfiguredApps() {
+        configureApps(TuiAppConfig(name = "lazygit", command = "lazygit", shortcutKeyCode = KeyEvent.VK_G))
+
+        val service = TuiAppLaunchService(project)
+        val host = FakeHost()
+        val session = FakeSession()
+        service.host = host
+        service.sessionFactory = FakeFactory(listOf(session))
+
+        service.prefixCommandActions().getValue(KeyEvent.VK_G).invoke()
+        PlatformTestUtil.dispatchAllEventsInIdeEventQueue()
+
+        assertEquals(1, host.tabs.size)
+        assertSame(host.tabs.single(), host.activeTab())
+    }
+
     fun testPrefixCommandActionsUseConfiguredKeys() {
         val state = TuiLauncherSettings.getInstance().state
         state.closeTuiKeyCode = KeyEvent.VK_X

@@ -45,6 +45,12 @@
                 description="Show or hide the TUILaunch tool window">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>
+        <action id="TUILauncher.ToggleToolWindowAndFocus"
+                class="com.github.atm1020.tuilaunch.action.ToggleToolWindowAndFocusAction"
+                text="TUILaunch Toggle Tool Window and Focus"
+                description="Show and focus, or hide, the TUILaunch tool window">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
         <action id="TUILauncher.CloseActiveTui"
                 class="com.github.atm1020.tuilaunch.action.CloseActiveTuiAction"
                 text="TUILaunch Close Active TUI"

@@ -131,6 +131,17 @@ class TuiAppLaunchService(private val project: Project) {
         }
     }
 
+    fun toggleToolWindowAndFocus() {
+        if (tabs.isEmpty()) return
+        val host = resolveHost() ?: return
+        ensureSizeListener(host)
+        if (host.isVisible()) {
+            host.hide()
+        } else {
+            focusTui()
+        }
+    }
+
     fun closeActiveTui() {
         val host = resolveHost() ?: return
         ensureSizeListener(host)
@@ -159,12 +170,20 @@ class TuiAppLaunchService(private val project: Project) {
 
     fun prefixCommandActions(): Map<Int, () -> Unit> {
         val state = TuiLauncherSettings.getInstance().state
-        return mapOf(
-            state.focusEditorKeyCode to { focusEditor() },
-            state.closeTuiKeyCode to { closeActiveTui() },
-            state.nextTuiKeyCode to { nextTuiTab() },
-            state.previousTuiKeyCode to { previousTuiTab() },
-        )
+        return buildMap {
+            state.focusEditorKeyCode?.let { putIfAbsent(it) { focusEditor() } }
+            state.closeTuiKeyCode?.let { putIfAbsent(it) { closeActiveTui() } }
+            state.nextTuiKeyCode?.let { putIfAbsent(it) { nextTuiTab() } }
+            state.previousTuiKeyCode?.let { putIfAbsent(it) { previousTuiTab() } }
+            state.toggleToolWindowKeyCode?.let { putIfAbsent(it) { toggleToolWindow() } }
+            state.nextTuiWithoutFocusKeyCode?.let { putIfAbsent(it) { nextTuiTabWithoutFocus() } }
+            state.previousTuiWithoutFocusKeyCode?.let { putIfAbsent(it) { previousTuiTabWithoutFocus() } }
+            state.tuiApps.forEach { app ->
+                app.shortcutKeyCode?.let { keyCode ->
+                    putIfAbsent(keyCode) { toggle("TUILauncher.${app.name}", app.command, app.name) }
+                }
+            }
+        }
     }
 
     private fun selectRelativeTuiTab(offset: Int, requestFocus: Boolean) {

@@ -48,4 +48,8 @@ class TuiAppTableModel(private val apps: MutableList<TuiAppConfig>) : AbstractTa
             fireTableRowsDeleted(rowIndex, rowIndex)
         }
     }
+
+    fun appAt(rowIndex: Int): TuiAppConfig = apps[rowIndex]
+
+    fun snapshot(): MutableList<TuiAppConfig> = apps.map { it.copy() }.toMutableList()
 }

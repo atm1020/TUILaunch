@@ -7,5 +7,7 @@ data class TuiAppConfig(
     var description: String = "",
     var windowWidth: Int? = null,
     var windowHeight: Int? = null,
+    /** Optional tmux-prefix key that launches this command from a TUILaunch terminal. */
+    var shortcutKeyCode: Int? = null,
 )
 
