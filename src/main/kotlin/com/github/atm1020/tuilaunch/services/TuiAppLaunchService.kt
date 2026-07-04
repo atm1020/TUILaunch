@@ -35,6 +35,7 @@ class TuiAppLaunchService(private val project: Project) {
     }
     private var sizeListenerInstalled = false
     private var windowRevealedByLaunch = false
+    private var applyingSize = false
 
     private data class OpenTab(
         val actionId: String,
@@ -66,7 +67,25 @@ class TuiAppLaunchService(private val project: Project) {
 
     private fun onTabSelected(host: IdeToolWindowHost, handle: Any) {
         val tab = tabs.values.firstOrNull { it.handle == handle } ?: return
-        savedSize(tab.actionId)?.let { host.applySize(it) }
+        applySavedSize(host, tab.actionId)
+    }
+
+    /**
+     * Restores a tab's saved size, suppressing [recordActiveTabSize] for the duration. Programmatic
+     * resizing emits the same componentResized events as a user drag; without this guard the
+     * transitional sizes reported mid-resize would be recorded back onto the just-selected tab,
+     * clobbering its saved size (often with the previous tab's dimensions). The guard is released on
+     * the next event-queue pass so resize events the apply triggers — whether dispatched
+     * synchronously or queued — are ignored, while genuine later user resizes are still recorded.
+     */
+    private fun applySavedSize(host: IdeToolWindowHost, actionId: String) {
+        val size = savedSize(actionId) ?: return
+        applyingSize = true
+        try {
+            host.applySize(size)
+        } finally {
+            invokeLater { applyingSize = false }
+        }
     }
 
     fun toggle(actionId: String, command: String, title: String) {
@@ -199,17 +218,23 @@ class TuiAppLaunchService(private val project: Project) {
         // Only record when switching away from a different tab; recording the tab we are
         // about to select (e.g. a freshly-launched tab that is already active) would clobber
         // its saved size with the current window size before we can restore it.
-        if (recordCurrent && host.activeTab() != tab.handle) recordActiveTabSize(host)
+        val alreadyActive = host.activeTab() == tab.handle
+        if (recordCurrent && !alreadyActive) recordActiveTabSize(host)
         if (requestFocus) tab.openedFromTui = isTuiFocused()
         host.show()
         host.selectTab(tab.handle)
-        savedSize(tab.actionId)?.let { host.applySize(it) }
+        // When the selection actually changes, host.selectTab fires the onTabSelected listener, which
+        // already restores the saved size. Applying again here would repeat a relative (docked)
+        // stretch and overshoot. Only restore directly when the tab was already active — then no
+        // selection event fires (e.g. a freshly-launched tab, or re-selecting the current tab).
+        if (alreadyActive) applySavedSize(host, tab.actionId)
         if (requestFocus) tab.session.requestFocus()
     }
 
     private fun isTuiFocused(): Boolean = activeToolWindowIdProvider() == TUI_TOOL_WINDOW_ID
 
     private fun recordActiveTabSize(host: IdeToolWindowHost) {
+        if (applyingSize) return
         val activeHandle = host.activeTab() ?: return
         val activeTab = tabs.values.firstOrNull { it.handle == activeHandle } ?: return
         val size = host.currentSize() ?: return

@@ -68,6 +68,12 @@ class TuiAppLaunchServiceFocusTest : BasePlatformTestCase() {
         val tabs = mutableListOf<Any>()
         var size: ToolWindowSize? = null
         val appliedSizes = mutableListOf<ToolWindowSize>()
+        /**
+         * When true, [applySize] fires a resize event while [currentSize] still reports the
+         * pre-resize dimensions, mirroring how a real tool window emits componentResized events
+         * mid-transition when its size is changed programmatically.
+         */
+        var emitStaleResizeOnApply = false
         private var sizeChanged: (() -> Unit)? = null
         private var tabSelected: ((Any) -> Unit)? = null
 
@@ -108,6 +114,11 @@ class TuiAppLaunchServiceFocusTest : BasePlatformTestCase() {
 
         override fun applySize(size: ToolWindowSize) {
             appliedSizes.add(size)
+            if (emitStaleResizeOnApply) {
+                // The window has not finished resizing yet: a componentResized event fires while
+                // currentSize() still reports the previous dimensions.
+                sizeChanged?.invoke()
+            }
             this.size = size
         }
 
@@ -175,6 +186,55 @@ class TuiAppLaunchServiceFocusTest : BasePlatformTestCase() {
         host.appliedSizes.clear()
 
         host.triggerTabSelected(firstTab)
+
+        assertEquals(listOf(ToolWindowSize(700, 400)), host.appliedSizes)
+    }
+
+    fun testSelectingTabKeepsSavedSizeWhenApplyTriggersResizeEvent() {
+        configureApps(
+            TuiAppConfig(name = "first", command = "first", windowWidth = 700, windowHeight = 400),
+            TuiAppConfig(name = "second", command = "second", windowWidth = 1100, windowHeight = 800),
+        )
+        val service = TuiAppLaunchService(project)
+        val host = FakeHost()
+        host.emitStaleResizeOnApply = true
+        host.size = ToolWindowSize(700, 400)
+        service.host = host
+        service.sessionFactory = FakeFactory(listOf(FakeSession(), FakeSession()))
+
+        service.toggle("TUILauncher.first", "first", "first")
+        service.toggle("TUILauncher.second", "second", "second")
+
+        // The window is currently sized for "second". The user clicks the "first" tab directly:
+        // the content manager selects it and fires the selection listener, which restores first's
+        // saved size via applySize. The resize event that applySize triggers reports the stale
+        // ("second") dimensions and must NOT be recorded onto "first".
+        host.size = ToolWindowSize(1100, 800)
+        host.selectTab(host.tabs[0])
+
+        val first = TuiLauncherSettings.getInstance().state.tuiApps.first { it.name == "first" }
+        assertEquals(700, first.windowWidth)
+        assertEquals(400, first.windowHeight)
+    }
+
+    fun testTogglingToOpenTabAppliesSavedSizeExactlyOnce() {
+        configureApps(
+            TuiAppConfig(name = "first", command = "first", windowWidth = 700, windowHeight = 400),
+            TuiAppConfig(name = "second", command = "second", windowWidth = 1100, windowHeight = 800),
+        )
+        val service = TuiAppLaunchService(project)
+        val host = FakeHost()
+        service.host = host
+        service.sessionFactory = FakeFactory(listOf(FakeSession(), FakeSession()))
+
+        service.toggle("TUILauncher.first", "first", "first")
+        service.toggle("TUILauncher.second", "second", "second")
+        host.appliedSizes.clear()
+
+        // Switching back to the already-open "first" tab via the launcher action. selectTab fires
+        // the selection listener which restores the size; selectTuiTab must not apply it a second
+        // time, or a relative (docked) resize would double the stretch and overshoot.
+        service.toggle("TUILauncher.first", "first", "first")
 
         assertEquals(listOf(ToolWindowSize(700, 400)), host.appliedSizes)
     }
