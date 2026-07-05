@@ -5,76 +5,131 @@
 
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/com.github.atm1020.tuilaunch.svg)](https://plugins.jetbrains.com/plugin/com.github.atm1020.tuilaunch)
 
-## Template ToDo list
-- [x] Create a new [IntelliJ Platform Plugin Template][template] project.
-- [ ] Get familiar with the [template documentation][template].
-- [ ] Adjust the [pluginGroup](./gradle.properties) and [pluginName](./gradle.properties), as well as the [id](./src/main/resources/META-INF/plugin.xml) and [sources package](./src/main/kotlin).
-- [ ] Adjust the plugin description in `README` (see [Tips][docs:plugin-description])
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html?from=IJPluginTemplate).
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
-- [ ] Set the `MARKETPLACE_ID` in the above README badges. You can obtain it once the plugin is published to JetBrains Marketplace.
-- [ ] Set the [Plugin Signing](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html?from=IJPluginTemplate) related [secrets](https://github.com/JetBrains/intellij-platform-plugin-template#environment-variables).
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
-- [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
-
 <!-- Plugin description -->
-**TUILaunch** is helps to launching TUI applications, such as `lazygit`, within IntelliJ's built-in terminal.
-Every saved application launch command is assigned an auto generated Action,
-which seamlessly integrate with IdeaVim or work  with the built-in keymap.
+**TUILaunch** launches TUI applications, such as `lazygit`, inside IntelliJ-based IDEs.
+It is not limited to Git tools: you can also open your favorite terminal-based agent harness,
+such as `claude`, `opencode`, `pi`, etc.
+Every saved launch command gets an auto-generated IDE Action, so it can be opened from the
+IDE keymap, the Tools menu, or IdeaVim's `<Action>(...)` mapping.
 
-
-The plugin is  inspired by Neovim's  [ToggleTerm plugin](https://github.com/akinsho/toggleterm.nvim?tab=readme-ov-file#custom-terminals) custom terminal feature.
-
+The plugin is inspired by Neovim's [ToggleTerm plugin](https://github.com/akinsho/toggleterm.nvim?tab=readme-ov-file#custom-terminals) custom terminal feature.
 <!-- Plugin description end -->
 
+<p align="center">
+  <img src="assets/opencode_tuilaunch.png" alt="OpenCode running in the TUILaunch tool window">
+</p>
+
 ## Features
-You can open the settings and add/edit commands :
-<kbd>Settings/Preferences</kbd> > <kbd>Tools</kbd> > <kbd>TUILauncher</kbd>
 
-### Create Action for TUI app 
-Add an installed application to the table, and after saving it, an action with the format `TUILauncher.{name}` is added to the IDE Actions.
+Open the settings and add/edit commands:
+<kbd>Settings/Preferences</kbd> > <kbd>Tools</kbd> > <kbd>TUI Launcher</kbd>
 
-You can use the **ActionId** in IdeaVim:
-```
+<p align="center">
+  <img src="assets/tui_app_table.png" alt="TUI app table">
+</p>
+
+### Create actions for TUI apps
+
+Add an installed application to the table and save it. TUILaunch registers an action with the format `TUILauncher.{name}`.
+
+Saved apps are registered automatically in the built-in IDE keymap, so you can assign normal IntelliJ shortcuts to them.
+
+<p align="center">
+  <img src="assets/keymap.png" alt="Saved app actions in the keymap">
+</p>
+
+You can also call the generated action ID from IdeaVim with `<Action>(TUILauncher.{name})`.
+Running the same app action again focuses the already-open tab instead of creating a duplicate.
+
+### Dedicated TUILaunch tool window
+
+TUI apps open in a dedicated `TUILaunch` tool window instead of the built-in Terminal tool window.
+Multiple TUI apps can stay open at the same time as separate tabs, and each tab closes automatically when its command exits.
+
+TUILaunch remembers the last tool window size used by each app and restores it when that app tab is selected again.
+
+### Focus and tab actions
+
+TUILaunch registers global actions that can be bound in the IDE keymap or called from IdeaVim:
+
+<p align="center">
+  <img src="assets/keymap_global_actions.png" alt="Global TUILaunch actions in the keymap">
+</p>
+
+- `TUILauncher.FocusTui` — focus the active TUI session.
+- `TUILauncher.FocusEditor` — return focus to the editor.
+- `TUILauncher.ToggleFocus` — switch focus between the editor and the active TUI session.
+- `TUILauncher.ToggleToolWindow` — show or hide the `TUILaunch` tool window.
+- `TUILauncher.ToggleToolWindowAndFocus` — show and focus the tool window, or hide it.
+- `TUILauncher.CloseActiveTui` — close the selected TUI tab.
+- `TUILauncher.NextTuiTab` / `TUILauncher.PreviousTuiTab` — switch TUI tabs and focus the terminal.
+- `TUILauncher.NextTuiTabWithoutFocus` / `TUILauncher.PreviousTuiTabWithoutFocus` — switch TUI tabs without moving keyboard focus into the terminal.
+
+### IdeaVim + tmux-like workflow
+
+TUILaunch works well with both IntelliJ keymaps and IdeaVim. Standard IntelliJ keymap shortcuts continue to work while focus is inside a TUI app because the IDE handles those shortcuts first. This is enough if you rely mainly on IntelliJ keybindings.
+
+If you mainly use IdeaVim, you can combine IdeaVim mappings in the editor with TUILaunch's tmux-like prefix shortcuts inside TUI sessions. For example, configure <kbd>Ctrl</kbd> + <kbd>Space</kbd> as the TUILaunch prefix key, then reuse familiar follow-up keys from your IdeaVim mappings.
+
+```vim
+" Launch a saved app. The action ID is TUILauncher.{name}.
 nmap <Space>gg <Action>(TUILauncher.lazygit)
+
+" Toggle focus between the editor and the active TUI tab.
+nmap <Space>tt <Action>(TUILauncher.ToggleFocus)
+
+" Focus the active TUI tab, then return to the editor.
+nmap <Space>tj <Action>(TUILauncher.FocusTui)
+nmap <Space>tk <Action>(TUILauncher.FocusEditor)
+
+" Make Ctrl+Space available to IdeaVim in normal mode.
+sethandler <C-Space> n:vim
+
+" Ctrl+Space prefix-style mappings for TUILaunch.
+nmap <C-Space><Space> <Action>(TUILauncher.ToggleToolWindow)
+nmap <C-Space>e <Action>(TUILauncher.FocusTui)
+nmap <C-Space>n <Action>(TUILauncher.NextTuiTab)
+nmap <C-Space>p <Action>(TUILauncher.PreviousTuiTab)
 ```
 
-Or simply use the built-in keymap feature.
-![AddApp](assets/keymap.png)
+Then register matching shortcuts in the TUILaunch tmux-like keybindings table, such as <kbd>Ctrl</kbd> + <kbd>Space</kbd>, then <kbd>G</kbd> to launch or focus `lazygit`.
 
-> After you close the TUI app, the terminal session automatically ends because the executed command always follows this format: `${command};exit.`
-> 
-###  ToolWindowType
-Configure which tool window mode is used to open your TUI app.
+### Tmux-like prefix keybindings
 
-![AddApp](assets/tool_window_type.png)
+When focus is inside a TUI session, you can configure a prefix key that runs TUILaunch actions without sending the keys to the TUI app.
 
-#### Override Modes
-When opening a terminal tool window, the current tool window type is temporarily overridden, and the terminal opens in the selected mode. 
+In the TUILaunch settings you can:
 
-Available modes:
-- `Dock to IDE window edge` – Attaches the terminal to the edge of the IDE window.
-- `Float as a separate window` – Opens the terminal in a floating window.
-- `Slide over the editor area` – Displays the terminal as an overlay on the editor.
-- `Show in a detached window` – Opens the terminal in a fully separate window.
+- Enable or disable tmux-like keybindings.
+- Choose the prefix modifier: <kbd>Ctrl</kbd> or <kbd>Alt</kbd>.
+- Record the prefix key.
+- Assign prefix commands for focusing the editor, closing the active TUI, switching tabs, toggling the tool window, and launching saved apps.
+- Clear assigned shortcuts with <kbd>Delete</kbd> or <kbd>Backspace</kbd>.
 
-> After the focus is lost, the tool window type automatically reverts to its default state.
+<p align="center">
+  <img src="assets/tmux_keybindings.png" alt="Tmux-like keybindings">
+</p>
 
-#### Does not override the mode:
--  `Use current window mode` – Keeps the existing tool window mode unchanged.
+Defined TUI apps automatically appear in the prefix-key table as launch actions, so they can be called from inside an active TUI session too.
 
-#### Limitation
-- Terminal sessions handled by this plugin are automatically closed after focus is lost.
-- Only one TUI application can be launched at a time. If you open a new app while another TUI application is running, the previous one is automatically closed.
+<p align="center">
+  <img src="assets/tmux_app_shortcuts.png" alt="Per-app tmux-like shortcuts">
+</p>
 
+Example workflow after configuring <kbd>Ctrl</kbd> + <kbd>Space</kbd> as the prefix and <kbd>E</kbd> as “Focus editor”:
+
+1. Focus a TUI tab.
+2. Press <kbd>Ctrl</kbd> + <kbd>Space</kbd>.
+3. Press <kbd>E</kbd>.
+4. Focus returns to the editor, and the key sequence is not sent to the TUI app.
 
 ## Installation
 
 - Using the IDE built-in plugin system:
-  
+
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "TUILaunch"</kbd> >
   <kbd>Install</kbd>
-  
+
 - Using JetBrains Marketplace:
 
   Go to [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID) and install it by clicking the <kbd>Install to ...</kbd> button in case your IDE is running.
@@ -87,9 +142,7 @@ Available modes:
   Download the [latest release](https://github.com/atm1020/TUILaunch/releases/latest) and install it manually using
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
 
-
 ---
 Plugin based on the [IntelliJ Platform Plugin Template][template].
 
 [template]: https://github.com/JetBrains/intellij-platform-plugin-template
-[docs:plugin-description]: https://plugins.jetbrains.com/docs/intellij/plugin-user-experience.html#plugin-description-and-presentation
