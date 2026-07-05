@@ -230,22 +230,14 @@ jobs:
         run: |
           gh api repos/{owner}/{repo}/releases \
             --jq '.[] | select(.draft == true) | .id' \
-            | xargs -I '{}' gh api -X DELETE repos/{owner}/{repo}/releases/{}
+            | xargs -r -I '{}' gh api -X DELETE repos/{owner}/{repo}/releases/{}
 
-      # Download the plugin distribution built by the Build job
-      - name: Download distribution artifact
-        uses: actions/download-artifact@v7
-        with:
-          name: plugin-distribution
-          path: build/distributions
-
-      # Create a new prerelease draft with the plugin distribution attached
+      # Create a new prerelease draft. The release workflow builds, publishes, and uploads the distribution asset.
       - name: Create Release Draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create "v${{ needs.build.outputs.version }}" \
-            build/distributions/*.zip \
             --draft \
             --prerelease \
             --title "v${{ needs.build.outputs.version }}" \
