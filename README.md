@@ -112,6 +112,8 @@ In the TUILaunch settings you can:
 
 Defined TUI apps automatically appear in the prefix-key table as launch actions, so they can be called from inside an active TUI session too.
 
+> **Note:** If you update the tmux-like keybindings while TUI tabs are already open, restart those active TUILaunch tabs so the new keybindings take effect inside them.
+
 <p align="center">
   <img src="assets/tmux_app_shortcuts.png" alt="Per-app tmux-like shortcuts">
 </p>
